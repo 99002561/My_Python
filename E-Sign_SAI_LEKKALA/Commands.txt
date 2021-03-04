@@ -1,0 +1,5 @@
+1) e_sign.exe -genkey keypair -dir .\
+2) e_sign.exe -hash_gen hash -i wf_ota_44932.bin
+3) e_sign.exe -gen_sign sign -i wf_ota_44932.bin -private_key private.bin -dir .\
+4) e_sign.exe -verify verify -i wf_ota_44932.bin -signature signature.bin -public_key public.bin
+5)e_sign.exe -append append -i wf_ota_44932.bin -signature signature.bin
