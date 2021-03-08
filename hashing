@@ -44,3 +44,9 @@ with open(filename,"rb") as f:
 # Generating signature
 '''
 signature = sk.sign(b"message")'''
+'''
+https://docs.python.org/3/howto/argparse.html#introducing-optional-arguments
+https://stackoverflow.com/questions/34451214/how-to-sign-and-verify-signature-with-ecdsa-in-python
+https://crypto.stackexchange.com/questions/62100/ecdsa-signing-and-verification-between-python-and-js
+https://www.quickprogrammingtips.com/python/how-to-calculate-sha256-hash-of-a-file-in-python.html
+ '''
