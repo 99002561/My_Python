@@ -1,0 +1,46 @@
+import argparse
+
+parser = argparse.ArgumentParser(description=" Generate key pairs and e-signature for binary file and"
+                                             "appends signature as well")
+parser.add_argument("-genkey","--gen_key" , help="Generate Private & Public keys")
+parser.add_argument("-dir", help="Output directory")
+parser.add_argument("-hash_gen", help="Generates hash(SHA-256) of binary image")
+parser.add_argument("-i", help="Input Binary image")
+parser.add_argument("-gen_sign", help="Generates signature file")
+parser.add_argument("-private_key", help="Input private key path for signature generation")
+parser.add_argument("-public_key", help="Input public key file for signature generation")
+parser.add_argument("-signature", help="Input signature file for signature verification")
+parser.add_argument("-verify", help="verifies signature")
+parser.add_argument("-append", help="append signature to input binary image")
+args = parser.parse_args()
+
+# Generating public and private keys
+'''
+from ecdsa import SigningKey, VerifyingKey, NIST256p
+sk = SigningKey.generate(curve=NIST256p)
+sk_string = sk.to_string()
+vk = sk.verifying_key
+sk2 = SigningKey.from_string(sk_string, curve=NIST256p)
+vk2 = VerifyingKey.from_string(vk_string, curve=NIST256p)
+print(sk_string.hex())
+print(sk2.to_string().hex())  # sk and sk2 are same
+print(vk)
+print(vk2) # vk and vk2 are same
+'''
+
+# Generating Hash value for binary image
+''''
+
+import hashlib
+
+filename = input("Enter the input file name: ")
+sha256_hash = hashlib.sha256()
+with open(filename,"rb") as f:
+    # Read and update hash string value in blocks of 4K
+    for byte_block in iter(lambda: f.read(4096),b""):
+        sha256_hash.update(byte_block)
+    print(sha256_hash.hexdigest()
+    '''
+# Generating signature
+'''
+signature = sk.sign(b"message")'''
