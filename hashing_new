@@ -1,69 +1,64 @@
-import argparse
-from ecdsa import SigningKey, VerifyingKey, NIST256p
-
-parser = argparse.ArgumentParser(description=" Generate key pairs and e-signature for binary file and"
-                                             "appends signature as well")
-#parser.add_argument("genkey",  help="Generate Private & Public keys")
-
-parser.add_argument("private_key", help="Input private key path for signature generation")
-parser.add_argument("public_key", help="Input public key file for signature generation")
-
-args = parser.parse_args()
-
-# Generating public and private keys
-
-Prk = args.private_key
-Puk = args.public_key
-Prk = SigningKey.generate(curve=NIST256p)
-Prk_string = Prk.to_string()
-Puk = Prk.verifying_key
-Puk_string = Puk.to_string()
-sk2 = SigningKey.from_string(Prk_string, curve=NIST256p)
-vk2 = VerifyingKey.from_string(Puk_string, curve=NIST256p)
-print(Prk_string.hex())
-#print(sk2.to_string().hex())  # sk and sk2 are same
-#print(vk)
-print(vk2.to_string().hex())  # vk and vk2 are same
-
-'''
-import hashlib
-
-filename = input("Enter the input file name: ")
-sha256_hash = hashlib.sha256()
-with open(filename,"rb") as f:
-    # Read and update hash string value in blocks of 4K
-    for byte_block in iter(lambda: f.read(4096),b""):
-        sha256_hash.update(byte_block)
-    print(sha256_hash.hexdigest()
-    '''
-# Generating signature
-'''
-signature = sk.sign(b"message")'''
-
-
-
 import hashlib
 import sys
 from ecdsa import SigningKey, VerifyingKey, NIST256p
+from pathlib import Path
 
-'''
-filename = input("Enter the input file name: ")
-sha256_hash = hashlib.sha256()
-with open(filename, "rb") as f:
-    # Read and update hash string value in blocks of 4K
-    for byte_block in iter(lambda: f.read(4096), b""):
-        sha256_hash.update(byte_block)
-    print(sha256_hash.hexdigest())
-'''
-
-Prk = SigningKey.generate(curve=NIST256p)
+# Generating Public and Private Key
+hash_value = list()
+Prk = SigningKey.generate(curve=NIST256p)  # Generating Private key
 Prk_string = Prk.to_string()
-Puk = Prk.verifying_key
+Puk = Prk.verifying_key  # Generating public key
 Puk_string = Puk.to_string()
 vk2 = VerifyingKey.from_string(Puk_string, curve=NIST256p)
-print(vk2.to_string().hex())
-with open('private3.bin', 'w') as f:
-    sys.stdout = f
-    print(Prk_string.hex())
+PrkString = Prk_string.hex()
+PukString = vk2.to_string().hex()
+path = input("Enter the path for Key pair: ")
+if Path(path).is_dir():
+    print()
+else:
+    Path(path).mkdir(parents=True, exist_ok=False)
+f = open(path + "\\Private_key.bin", "w")  # creating private.bin file
+f.write(PrkString)
+f.close()
 
+f1 = open(path + "\\Public_key.bin", "w")  # creating public.bin file
+f1.write(PukString)
+f1.close()
+print("Key pairs are Generated")
 
+# Generating Hash Value for Binary image
+filepath = input("Enter the binary file path: ")
+sha256_hash = hashlib.sha256()
+with open(filepath, "rb") as f:
+    for byte_block in iter(lambda: f.read(4096), b""):
+        sha256_hash.update(byte_block)
+    print("Hash Value: ", sha256_hash.hexdigest())
+    # print(sha256_hash.hexdigest())  # Generating hash value
+    hash_value.append(sha256_hash.hexdigest())
+
+# Generating Signature
+e_sign = bytes(hash_value[0], "utf-8")  # converting hex to bytes
+signature = Prk.sign(e_sign)  # takes input as bytes
+L = signature.hex()
+sign_path = input("Enter the path for signature: ")
+if Path(sign_path).is_dir():
+    print()
+else:
+    Path(sign_path).mkdir(parents=True, exist_ok=False)
+f2 = open(sign_path + "\\Signature.bin", "w")
+f2.write(L)
+f2.close()
+print("Signature is Generated ")
+
+# Verification
+Verify = Puk.verify(signature, e_sign)
+if Verify == True:
+    print("Ok, Verified")
+print("Verification is Done ")
+
+# Generating Signed Document
+Bin_path = input("Provide Binary file path: ")
+f3 = open(Bin_path, 'a')
+f3.write(L)
+f3.close()
+print("Signed document is generated")
