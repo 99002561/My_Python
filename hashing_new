@@ -1,0 +1,69 @@
+import argparse
+from ecdsa import SigningKey, VerifyingKey, NIST256p
+
+parser = argparse.ArgumentParser(description=" Generate key pairs and e-signature for binary file and"
+                                             "appends signature as well")
+#parser.add_argument("genkey",  help="Generate Private & Public keys")
+
+parser.add_argument("private_key", help="Input private key path for signature generation")
+parser.add_argument("public_key", help="Input public key file for signature generation")
+
+args = parser.parse_args()
+
+# Generating public and private keys
+
+Prk = args.private_key
+Puk = args.public_key
+Prk = SigningKey.generate(curve=NIST256p)
+Prk_string = Prk.to_string()
+Puk = Prk.verifying_key
+Puk_string = Puk.to_string()
+sk2 = SigningKey.from_string(Prk_string, curve=NIST256p)
+vk2 = VerifyingKey.from_string(Puk_string, curve=NIST256p)
+print(Prk_string.hex())
+#print(sk2.to_string().hex())  # sk and sk2 are same
+#print(vk)
+print(vk2.to_string().hex())  # vk and vk2 are same
+
+'''
+import hashlib
+
+filename = input("Enter the input file name: ")
+sha256_hash = hashlib.sha256()
+with open(filename,"rb") as f:
+    # Read and update hash string value in blocks of 4K
+    for byte_block in iter(lambda: f.read(4096),b""):
+        sha256_hash.update(byte_block)
+    print(sha256_hash.hexdigest()
+    '''
+# Generating signature
+'''
+signature = sk.sign(b"message")'''
+
+
+
+import hashlib
+import sys
+from ecdsa import SigningKey, VerifyingKey, NIST256p
+
+'''
+filename = input("Enter the input file name: ")
+sha256_hash = hashlib.sha256()
+with open(filename, "rb") as f:
+    # Read and update hash string value in blocks of 4K
+    for byte_block in iter(lambda: f.read(4096), b""):
+        sha256_hash.update(byte_block)
+    print(sha256_hash.hexdigest())
+'''
+
+Prk = SigningKey.generate(curve=NIST256p)
+Prk_string = Prk.to_string()
+Puk = Prk.verifying_key
+Puk_string = Puk.to_string()
+vk2 = VerifyingKey.from_string(Puk_string, curve=NIST256p)
+print(vk2.to_string().hex())
+with open('private3.bin', 'w') as f:
+    sys.stdout = f
+    print(Prk_string.hex())
+
+
