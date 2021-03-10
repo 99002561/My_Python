@@ -1,0 +1,49 @@
+import argparse
+from ecdsa import SigningKey, VerifyingKey, NIST256p
+from pathlib import Path
+import hashlib
+
+parser = argparse.ArgumentParser(
+    description="Generate key pairs and e-signature for binary file and appends signature as well")
+parser.add_argument("-Dir", type=str,
+                    help="Provide Output path to store files")
+parser.add_argument("-i", type=str,
+                    help="Provide Input Binary Image path")
+
+args = parser.parse_args()
+print(type(args.Dir))
+
+# Generating Public and Private Key
+
+Prk = SigningKey.generate(curve=NIST256p)  # Generating Private key
+Prk_string = Prk.to_string()
+Puk = Prk.verifying_key  # Generating public key
+Puk_string = Puk.to_string()
+vk2 = VerifyingKey.from_string(Puk_string, curve=NIST256p)
+PrkString = Prk_string.hex()
+PukString = vk2.to_string().hex()
+if Path(args.Dir).is_dir():
+    print()
+else:
+    Path(args.Dir).mkdir(parents=True, exist_ok=False)
+f = open(args.Dir + "\\Private_key.bin", "w")  # creating private.bin file
+f.write(PrkString)
+f.close()
+
+f1 = open(args.Dir + "\\Public_key.bin", "w")  # creating public.bin file
+f1.write(PukString)
+f1.close()
+print("Key pairs are successfully Generated")
+
+# Generating Hash Value for Binary image
+
+args = parser.parse_args()
+print(args.i)
+# filepath = input("Enter the binary file path: ")
+hash_value = list()
+f2 = open(args.dir + "\\" + args.i, "rb")
+data = f2.read()  # read entire file as bytes
+readable_hash = hashlib.sha256(data).hexdigest()
+print("Hash_value: ", readable_hash)
+
+f2.close()
