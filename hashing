@@ -1,52 +1,70 @@
 import argparse
-
-parser = argparse.ArgumentParser(description=" Generate key pairs and e-signature for binary file and"
-                                             "appends signature as well")
-parser.add_argument("-genkey","--gen_key" , help="Generate Private & Public keys")
-parser.add_argument("-dir", help="Output directory")
-parser.add_argument("-hash_gen", help="Generates hash(SHA-256) of binary image")
-parser.add_argument("-i", help="Input Binary image")
-parser.add_argument("-gen_sign", help="Generates signature file")
-parser.add_argument("-private_key", help="Input private key path for signature generation")
-parser.add_argument("-public_key", help="Input public key file for signature generation")
-parser.add_argument("-signature", help="Input signature file for signature verification")
-parser.add_argument("-verify", help="verifies signature")
-parser.add_argument("-append", help="append signature to input binary image")
-args = parser.parse_args()
-
-# Generating public and private keys
-'''
 from ecdsa import SigningKey, VerifyingKey, NIST256p
-sk = SigningKey.generate(curve=NIST256p)
-sk_string = sk.to_string()
-vk = sk.verifying_key
-sk2 = SigningKey.from_string(sk_string, curve=NIST256p)
-vk2 = VerifyingKey.from_string(vk_string, curve=NIST256p)
-print(sk_string.hex())
-print(sk2.to_string().hex())  # sk and sk2 are same
-print(vk)
-print(vk2) # vk and vk2 are same
-'''
-
-# Generating Hash value for binary image
-''''
-
+from pathlib import Path
 import hashlib
 
-filename = input("Enter the input file name: ")
-sha256_hash = hashlib.sha256()
-with open(filename,"rb") as f:
-    # Read and update hash string value in blocks of 4K
-    for byte_block in iter(lambda: f.read(4096),b""):
-        sha256_hash.update(byte_block)
-    print(sha256_hash.hexdigest()
-    '''
-# Generating signature
+parser = argparse.ArgumentParser(
+    description="Generate key pairs and e-signature for binary file and appends signature as well")
+parser.add_argument("-Dir", type=str,
+                    help="Provide Output path to store files")
+parser.add_argument("-Genkey", type=str,
+                    help="Generates Private and Public Keys")
+parser.add_argument("-hash_gen", type=str,
+                    help="Generates hash value for input binary image")
+parser.add_argument("-i", type=str,
+                    help="Provide Input Binary Image path")
+args = parser.parse_args()
+
+
+# Generating Public and Private Key
+if args.Genkey == "Keypair" and args.Dir != None:
+    Prk = SigningKey.generate(curve=NIST256p)  # Generating Private key
+    Prk_string = Prk.to_string()
+    Puk = Prk.verifying_key  # Generating public key
+    Puk_string = Puk.to_string()
+    vk2 = VerifyingKey.from_string(Puk_string, curve=NIST256p)
+    PrkString = Prk_string.hex()
+    PukString = vk2.to_string().hex()
+    if Path(args.Dir).is_dir():
+        print()
+    else:
+        Path(args.Dir).mkdir(parents=True, exist_ok=False)
+    f = open(args.Dir + "\\Private_key.bin", "w")  # creating private.bin file
+    f.write(PrkString)
+    f.close()
+
+    f1 = open(args.Dir + "\\Public_key.bin", "w")  # creating public.bin file
+    f1.write(PukString)
+    f1.close()
+    print('''INFO:root:*** Generating key-pair. ***\\n
+INFO:root:--- Key-pair successfully generated. ---''')
+
+# Generating Hash Value for Binary image
+if args.hash_gen == "hash" and args.i != None:
+    # filepath = input("Enter the binary file path: ")
+    hash_value = list()
+    try:
+        f2 = open(args.i, "rb")
+        data = f2.read()  # read entire file as bytes
+        readable_hash = hashlib.sha256(data).hexdigest()
+        print("Hash_value: ", readable_hash)
+        hash_value.append(readable_hash)
+        f2.close()
+    except Exception as e:
+        print('File not found. Please provide the correct path.')
+
 '''
-signature = sk.sign(b"message")'''
+# Generating Signature
+e_sign = bytes(hash_value[0], "utf-8")  # converting hex to bytes
+signature = Prk.sign(e_sign)  # takes input as bytes
+L = signature.hex()
+sign_path = input("Enter the path for signature: ")
+if Path(sign_path).is_dir():
+    print()
+else:
+    Path(sign_path).mkdir(parents=True, exist_ok=False)
+f2 = open(sign_path + "\\Signature.bin", "w")
+f2.write(L)
+f2.close()
+print("Signature is Generated ")
 '''
-https://docs.python.org/3/howto/argparse.html#introducing-optional-arguments
-https://stackoverflow.com/questions/34451214/how-to-sign-and-verify-signature-with-ecdsa-in-python
-https://crypto.stackexchange.com/questions/62100/ecdsa-signing-and-verification-between-python-and-js
-https://www.quickprogrammingtips.com/python/how-to-calculate-sha256-hash-of-a-file-in-python.html
- '''
