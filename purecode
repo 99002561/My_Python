@@ -1,0 +1,69 @@
+import hashlib
+from ecdsa import SigningKey, VerifyingKey, NIST256p
+from pathlib import Path
+
+# Generating Public and Private Key
+hash_value = list()
+Prk = SigningKey.generate(curve=NIST256p)  # Generating Private key
+Prk_string = Prk.to_string()
+Puk = Prk.verifying_key  # Generating public key
+Puk_string = Puk.to_string()
+vk2 = VerifyingKey.from_string(Puk_string, curve=NIST256p)
+PrkString = Prk_string.hex()
+PukString = vk2.to_string().hex()
+path = input("Enter the path for Key pair: ")
+if Path(path).is_dir():
+    print()
+else:
+    Path(path).mkdir(parents=True, exist_ok=False)
+f = open(path + "\\Private_key.bin", "w")  # creating private.bin file
+f.write(PrkString)
+f.close()
+
+f1 = open(path + "\\Public_key.bin", "w")  # creating public.bin file
+f1.write(PukString)
+f1.close()
+print('''INFO:root:*** Generating key-pair. ***
+INFO:root:--- Key-pair successfully generated. ---''')
+
+# Generating Hash Value for Binary image
+
+
+filepath = input("Enter the binary file path: ")
+hash_value = list()
+f2 = open(filepath , "rb")
+data = f2.read()  # read entire file as bytes
+readable_hash = hashlib.sha256(data).hexdigest()
+print("Hash_value: ", readable_hash)
+hash_value.append(readable_hash)
+
+f2.close()
+
+# Generating Signature
+e_sign = bytes(hash_value[0], "utf-8")  # converting hex to bytes
+signature = Prk.sign(e_sign)  # takes input as bytes
+L = signature.hex()
+sign_path = input("Enter the path for signature: ")
+if Path(sign_path).is_dir():
+    print()
+else:
+    Path(sign_path).mkdir(parents=True, exist_ok=False)
+f2 = open(sign_path + "\\Signature.bin", "w")
+f2.write(L)
+f2.close()
+print("Signature is Generated ")
+
+
+
+# Verification
+Verify = Puk.verify(signature, e_sign)
+if Verify == True:
+    print("Ok, Verified")
+print("Verification is Done ")
+
+# Generating Signed Document
+Bin_path = input("Provide Binary file path: ")
+f3 = open(Bin_path, 'a')
+f3.write(L)
+f3.close()
+print("Signed document is generated")
